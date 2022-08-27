@@ -6,25 +6,14 @@ const tempmin = document.getElementById('tempmin')
 const tempmax = document.getElementById('tempmax')
 const estado = document.getElementById('estado')
 const icon = document.getElementById('icon')
-const horas = document.getElementById('horas')
+/* const hora = document.getElementById('hora') */
 
 
-/* https://api.openweathermap.org/data/2.5/weather?lat=35&lon=139&appid={API key}
-API key = 0e92d3a889d4510f17b26636ff63a3e2 */
-/* let url = 'https://api.openweathermap.org/data/2.5/weather?q=London&appid=0e92d3a889d4510f17b26636ff63a3e2' */
-
-/* https://api.openweathermap.org/data/2.5/weather?q=${buscar}&units=metric&appid=616629f9acdc3b22b8b09553e632e5da */
-
+/* Mi API KEY 0e92d3a889d4510f17b26636ff63a3e2*/
 /* https://api.openweathermap.org/data/2.5/weather?q=${buscar}&units=metric&appid=616629f9acdc3b22b8b09553e632e5da&lang=es */ //Principal
 
-/* https://api.openweathermap.org/data/2.5/forecast?q=${buscar}&cnt=5&appid=616629f9acdc3b22b8b09553e632e5da&lang=es 5 dias*/
-
-/* https://tile.openweathermap.org/map/temp_new/25/34.9833/71.2333.png?appid=616629f9acdc3b22b8b09553e632e5da 
-
-    https://maps.openweathermap.org/maps/2.0/weather/1h/TA2/25/-34.9833/-71.2333?appid=616629f9acdc3b22b8b09553e632e5da
-*/
-let grados = []
-let fechas = []
+let grados = [];
+let horas = [];
 
 async function clima(){
     
@@ -42,27 +31,41 @@ async function clima(){
     console.log(respuesta);
     let info = respuesta.list;
 
-    info.map((elemento) => {
-        horas.innerHTML += `<div>${elemento.dt_txt}</div> <div>${elemento.main.temp}</div>`        
-/*             grados.push(Math.trunc(elemento.main.temp));
-            fechas.push(obtenerHora(elemento.dt_txt)); */
-        });
-    
-    let grados1 = info.map((grado) => Math.trunc(grado.main.temp))
-    grados = grados1
-    
-    let fechas1 = info.map((fech) => obtenerHora(fech.dt_txt))
-    fechas = fechas1
-    console.log("Grados: ",grados );
-    console.log("Fechas: ",fechas );
+    var map = L.map('map').setView([`${lat}`, `${lon}`], 13);
 
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    
+    L.marker([`${lat}`, `${lon}`]).addTo(map)
+        /* .bindPopup('A pretty CSS3 popup.<br> Easily customizable.') */
+        .openPopup();
+
+/*     info.map((elemento) => {
+        horas.innerHTML += `<div>${elemento.dt_txt}</div> <div>${elemento.main.temp}</div>`        
+            grados.push(Math.trunc(elemento.main.temp));
+            fechas.push(obtenerHora(elemento.dt_txt)); 
+        }); */
+    
+    let grados_api = info.map((grado) => Math.trunc(grado.main.temp)) //Obtengo temperatura
+    
+    grados = grados_api
+    
+    let horas_api = info.map((fech) => obtenerHora(fech.dt_txt)) //Obtengo Horas
+    console.log("Fechas: ",horas_api );
+    horas = horas_api
+    console.log("Grados: ",grados );
+    console.log("Fechas: ",horas );
+
+
+//Principio del Gráfico
     const data = {
-        labels: fechas,
+        labels: horas,
          datasets: [{
-                label: 'Temperatura Por hora',
+                label: 'Temperatura próximas 5 Horas',
                 data: grados,
                 fill: false,
-                borderColor: 'rgb(75, 192, 192)',
+                borderColor: 'rgb(255,0,0)', //'rgb(75, 192, 192)'
                 tension: 0.1
         }]
     };
@@ -71,14 +74,13 @@ async function clima(){
         data: data,
         options: {}
       };
-    
-  
+      
     const myChart = new Chart(
         document.getElementById('myChart'),
         config,        
       );
-       
-    pintaDatos(response) 
+//Fin del gráfico       
+    pintaDatos(response) //Pinto datos obtenidos de la api
 }
 
 function pintaDatos(response){
@@ -110,7 +112,7 @@ function pintaDatos(response){
 
 }
 
-function obtenerHora(fecha){
+function obtenerHora(fecha){ //Funcion que me formatea la hora 
     let hora_corregida = fecha;
     hora_corregida = hora_corregida.split(' ');
     hora_corregida = hora_corregida[1];
@@ -123,8 +125,3 @@ function obtenerHora(fecha){
 boton.addEventListener('click', clima)
 
 
-/* coord:
-lat: -33.4569
-lon: -70.6483 */
-
-/* https://api.openweathermap.org/data/3.0/onecall?lat=33.44&lon=-94.04&exclude=hourly,daily&appid=616629f9acdc3b22b8b09553e632e5da */
